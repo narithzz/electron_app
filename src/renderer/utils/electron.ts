@@ -136,3 +136,23 @@ export const safeIpcRemoveListener = (channel: string, listener: (...args: any[]
     console.error(`IPC removeListener failed for channel "${channel}":`, error);
   }
 };
+
+// Create the electronAPI object for the window
+const electronAPI = {
+  testDbConnection: () => safeIpcInvoke('test-db-connection'),
+  getTables: () => safeIpcInvoke('get-tables'),
+  executeQuery: (query: string, params?: any[]) => safeIpcInvoke('execute-query', query, params),
+  fetchData: () => safeIpcInvoke('fetch-data'),
+  login: (username: string, password: string) => safeIpcInvoke('login', username, password),
+  getUserProfile: (userId: number) => safeIpcInvoke('get-user-profile', userId),
+  checkAccountStatus: (username: string) => safeIpcInvoke('check-account-status', username),
+  unlockAccount: (username: string) => safeIpcInvoke('unlock-account', username),
+  getUserLoginHistory: (username: string, limit?: number) => safeIpcInvoke('get-user-login-history', username, limit),
+  getAllLoginHistory: (limit?: number, offset?: number) => safeIpcInvoke('get-all-login-history', limit, offset),
+  getLoginStatistics: (days?: number) => safeIpcInvoke('get-login-statistics', days)
+};
+
+// Expose electronAPI to the global window object
+if (typeof window !== 'undefined') {
+  (window as any).electronAPI = electronAPI;
+}

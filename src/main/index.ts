@@ -3,7 +3,7 @@ import path from "node:path";
 import os from "node:os";
 
 import { registerRoute } from "lib/electron-router-dom";
-import { setupIpcHandlers } from "./ipcHandlers";
+import { setupIpcHandlers, cleanupDatabase } from "./ipcHandlers";
 
 async function createMainWindow() {
   const mainWindow = new BrowserWindow({
@@ -54,8 +54,13 @@ app.whenReady().then(() => {
   });
 });
 
-app.on("window-all-closed", () => {
+app.on("window-all-closed", async () => {
   if (process.platform !== "darwin") {
+    await cleanupDatabase();
     app.quit();
   }
+});
+
+app.on("before-quit", async () => {
+  await cleanupDatabase();
 });

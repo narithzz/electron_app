@@ -20,6 +20,10 @@ export function Layout() {
         <Separator orientation="vertical" />
 
         <NavLink to="/csv-upload">CSV Upload</NavLink>
+
+        <Separator orientation="vertical" />
+
+        <NavLink to="/database-test">Database Test</NavLink>
       </nav>
 
       <section className="items-center justify-center flex flex-col gap-6">

@@ -5,6 +5,7 @@ import { Routes } from './routes'
 import { ElectronLoader } from './components/LoadingSpinner'
 
 import './electron.css'
+import './utils/electron' // Initialize electron API
 
 // Add console log to track loading
 console.log('🚀 React app initializing...');
