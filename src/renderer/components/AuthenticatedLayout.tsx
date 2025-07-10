@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Button } from './button'
 import { Separator } from './ui/separator'
@@ -6,7 +7,32 @@ import { SessionTimeoutWarning } from './SessionTimeoutWarning'
 import logo from '../assets/E-POS-logo-1.png'
 
 export function AuthenticatedLayout() {
-  const { user, logout, sessionTimeRemaining, refreshSession } = useAuth()
+  const { user, logout, sessionTimeRemaining: initialTimeRemaining, refreshSession } = useAuth()
+  const [displayTimeRemaining, setDisplayTimeRemaining] = useState(initialTimeRemaining)
+  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now())
+
+  useEffect(() => {
+    // Update the display time whenever the sessionTimeRemaining changes significantly
+    // (e.g., after a refresh or when receiving updates from the server)
+    setDisplayTimeRemaining(initialTimeRemaining)
+    setLastUpdateTime(Date.now())
+  }, [initialTimeRemaining])
+
+  useEffect(() => {
+    // Set up an interval to update the display time every second
+    const timer = setInterval(() => {
+      const now = Date.now()
+      const timeElapsed = now - lastUpdateTime
+      setDisplayTimeRemaining(prev => {
+        const newTime = Math.max(0, (prev || 0) - timeElapsed)
+        return newTime
+      })
+      setLastUpdateTime(now)
+    }, 1000)
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(timer)
+  }, [lastUpdateTime])
 
   const handleLogout = () => {
     logout()
@@ -155,8 +181,8 @@ export function AuthenticatedLayout() {
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-700">
                 <div>Welcome, <span className="font-medium">{user?.username}</span></div>
-                <div className={`text-xs ${getSessionStatusColor(sessionTimeRemaining)}`}>
-                  Session: {formatTimeRemaining(sessionTimeRemaining)}
+                <div className={`text-xs ${getSessionStatusColor(displayTimeRemaining)}`}>
+                  Session: {formatTimeRemaining(displayTimeRemaining)}
                 </div>
               </div>
               <Button

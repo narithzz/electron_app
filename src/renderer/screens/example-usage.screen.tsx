@@ -18,6 +18,7 @@ import {
 
 // Import logo
 import logoImage from "../assets/E-POS-logo-1.png";
+import { Modal } from "../components/modal";
 
 // Register fonts
 Font.register({
@@ -447,16 +448,36 @@ export function ExampleUsageScreen() {
         </div>
 
         {showPreview && (
-          <div className="border rounded-lg overflow-hidden">
-            <h3 className="text-lg font-semibold p-4 bg-gray-50 border-b">
-              PDF Preview
-            </h3>
-            <div style={{ height: "600px" }}>
+          <Modal isOpen={showPreview} onClose={() => setShowPreview(false)}>
+            <div className="flex items-center justify-between p-4 bg-gray-50 border-b rounded-t-lg">
+              <h3 className="text-lg font-semibold">PDF Preview</h3>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="ml-4 text-gray-400 hover:text-gray-700 focus:outline-none"
+                aria-label="Close"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div style={{ height: "600px" }} className="w-full">
               <PDFViewer width="100%" height="100%">
                 <MyDocument data={currentData} />
               </PDFViewer>
             </div>
-          </div>
+          </Modal>
         )}
       </div>
 

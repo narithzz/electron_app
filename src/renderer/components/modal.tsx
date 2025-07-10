@@ -1,39 +1,97 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full';
+  fullScreenOnMobile?: boolean;
 };
 
-export function Modal({ isOpen, onClose, children }: ModalProps) {
+export function Modal({ 
+  isOpen, 
+  onClose, 
+  children, 
+  maxWidth = '3xl',
+  fullScreenOnMobile = false 
+}: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const maxWidthClasses = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
+    '5xl': 'max-w-5xl',
+    '6xl': 'max-w-6xl',
+    '7xl': 'max-w-7xl',
+    full: 'max-w-full',
+  };
+
+  // Handle escape key press
   useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.addEventListener('keydown', handleEscape);
     } else {
-      document.body.style.overflow = 'auto';
+      // Only reset overflow if no other modals are open
+      const modals = document.querySelectorAll('.fixed.inset-0.z-50');
+      if (modals.length <= 1) {
+        document.body.style.overflow = 'auto';
+      }
+      document.removeEventListener('keydown', handleEscape);
     }
-  }, [isOpen]);
+
+    // Clean up
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      const modals = document.querySelectorAll('.fixed.inset-0.z-50');
+      if (modals.length <= 1) {
+        document.body.style.overflow = 'auto';
+      }
+    };
+  }, [isOpen, onClose]);
+
+  // Handle click outside
+  const handleClickOutside = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose();
+    }
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={onClose}
+          onClick={handleClickOutside}
         >
+          <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
           <motion.div
-            className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
-            initial={{ y: 50, opacity: 0 }}
+            ref={modalRef}
+            className={`relative w-full ${maxWidthClasses[maxWidth]} mx-auto bg-white rounded-lg shadow-xl overflow-hidden ${
+              fullScreenOnMobile ? 'h-full md:h-auto' : 'my-8 max-h-[90vh]'
+            }`}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
+            exit={{ y: 20, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
-            {children}
+            <div className="overflow-y-auto max-h-[calc(100vh-4rem)]">
+              {children}
+            </div>
           </motion.div>
         </motion.div>
       )}

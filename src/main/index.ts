@@ -54,9 +54,8 @@ app.whenReady().then(() => {
   });
 });
 
-app.on("window-all-closed", async () => {
+app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    await cleanupDatabase();
     app.quit();
   }
 });
