@@ -72,7 +72,7 @@ export function Modal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -81,15 +81,15 @@ export function Modal({
           <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
           <motion.div
             ref={modalRef}
-            className={`relative w-full ${maxWidthClasses[maxWidth]} mx-auto bg-white rounded-lg shadow-xl overflow-hidden ${
-              fullScreenOnMobile ? 'h-full md:h-auto' : 'my-8 max-h-[90vh]'
+            className={`relative w-full ${maxWidthClasses[maxWidth]} mx-auto bg-white rounded-lg shadow-xl overflow-hidden max-h-[95vh] ${
+              fullScreenOnMobile ? 'h-full md:h-auto' : ''
             }`}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="overflow-y-auto max-h-[calc(100vh-4rem)]">
+            <div className="overflow-y-auto h-full"> {/* Changed max-h to h-full, combined with parent max-h */}
               {children}
             </div>
           </motion.div>
